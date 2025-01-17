@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="permissions-policy" content="microphone=()">
+    <title>Speech Emotion Recognition</title>
+    <!-- document.title        ,this can be written on the console of the spotify official website to get their document title -->
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+    <!-- if right click is not working on a website then u can use keys shortcut to open the inspect portion and it is done by "ctrl+shift+i" -->
+    <!-- as we know that spotify website is divided into 2 parts left is  -->
+    <div class="container1 flex">
+        <div class="left">
+            <!-- <img src="hamburger.svg" class="hamburger invert " alt=""> -->
+            <div class="home bg-black rounded">
+                <!-- <img src="logo.svg" alt="Can't load image"> -->
+                <span class="closebtn" onclick="closeSlideInPage()">&times;</span>
+                <ul>
+                    
+                    <li class="flex align"><img src="home.svg" alt="Home"><a href="">Home</a></li>
+                    <li class="searching flex align"><img src="search.svg" alt="Search"><a href="">Search</a></li>
+                    <!-- <img class="audio" src="https://cdn-icons-png.flaticon.com/512/8006/8006314.png"> -->
+                    <li class="searching flex align"><img src="search.svg" alt="Search"><a href="#">Audio</a></li>
+                </ul>
+            </div>
+            <div class="library rounded bg-black">
+                <div class="heading flex align m1 ">
+                    <img src="liblogo.svg" alt="">
+                    <h3>Library</h3>
+                    <img class="libplus flex align" src="pluslib.svg" alt="">
+                </div>
+
+
+                <div class="box1 bg-grey  p1 rounded">
+                    <h4>Create your first playlist</h4>
+                    <div>It's easy we will help you</div>
+                    <button onclick="createPlaylist()" class="create-playlist-btn">Create Playlist</button>
+
+                </div>
+                
+                <div class="songlist">
+                    <ul>
+                        <!-- note that we will load the songs from script.js when they are loaded (event listner) then automatically they will be added here as -->
+                        <!-- <li class="limusic flex"><img src="music.svg" class="invert" alt="">
+                            <div class="info flex justify align">
+                                    <div>Song Name</div>
+                                    <div>Artist Name</div>
+                                
+                            </div>
+                            <div class="playnow flex justify align">
+                                <span>Play Now</span>
+                                <img class="invert" src="play.svg" alt="">
+                            </div>
+                        </li> -->
+                        <!-- this li is used to form the structure of the songlist element and this list's html is given in javascript -->
+                    </ul>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="right">
+            <header class="header flex align ">
+                <img src="hamburger.svg" class="hamburger invert " alt="">
+                <nav class="navbar flex align">
+                    <div class="leftnav flex justify align">
+                        <input class="input bg-grey" id="inputfolder" type="text" placeholder="💭 What do you want to play?">
+                        <button onclick="searchfolder()" class="searchbutton">Search</button>
+
+                    </div>
+                    <div class="rightnav flex align">
+                        <ul class="flex align">
+                            <a href="https://www.spotify.com/in-en/premium/?ref=spotifycom_header_premium_individual" class="buts" target="_blank">Premium</a>
+                            <a href="https://support.spotify.com/#_gl=1*ah1a*_gcl_au*MTI4MjMwMTU0Mi4xNzM2Njk4Njc3" class="buts" target="_blank">Support</a>
+                            <a href="https://www.spotify.com/us/download/windows/" class="buts" target="_blank">Download</a>
+                        </ul>
+                        <div class="navbutton">
+                            <span>|</span>
+                            <button id="SignUp" class="signup">Sign Up</button>
+                            <button id="LogIn" class="login">Log In</button>
+                        </div>
+                        <form class="loginpage" id="loginForm">
+                            <span class="closepage" onclick="closeloginpage()">&times;</span>
+                            <!-- <img class="spotifylogo" src="logo.svg" alt="Can't load image"> -->
+                            <div class="logincard">
+                                
+                                <div class="sign1">
+                                    <label for="username" id="usernamelabel">Username:</label>
+                                    <input type="text" id="username" name="username" autocomplete="given-name">
+                                </div>
+                                <div class="sign1">
+                                    <label for="password" id="passwordlabel">Password:</label>
+                                    <input type="password" id="password" name="password" autocomplete="given-password">
+                                </div>
+                                
+                            </div>
+                            <button class="logbutton" type="submit">Login</button>
+                        </form>
+                        <form class="signuppage" id="signupForm">
+                            <span class="closepage" onclick="closesignuppage()">&times;</span>
+                            <!-- <img class="spotifylogo" src="logo.svg" alt="Can't load image"> -->
+                            <div class="logincard">
+                                
+                                <div class="sign1">
+                                    <label for="username" id="usernamesignup">Username :</label>
+                                    <input type="text" id="usernameinput" name="username" autocomplete="given-name">
+                                </div>
+                                <div class="sign1">
+                                    <label for="password" id="passwordsignup">Password :</label>
+                                    <input type="password" id="passwordinput" name="password" autocomplete="given-password">
+                                </div>
+                            </div>
+                            <button class="signbutton" type="submit">Sign Up</button>
+
+                        </form>
+
+                    </div>
+                </nav>
+            </header>
+            <section class="spotify-playlist">
+                <h1>Playlists</h1>
+                <div class="container2 flex ">
+                    <div data-folder="hits" class="card flex justify align">
+                        <!-- "data-" is the attribute to target it with the name given after data- .Hence data- attributes are reserved for programmers use.They are available in a property named dataset in js  -->
+                        <!-- eg. here an element can be used by using element.dataset.folder here -->
+                        
+                        
+                        <img src="https://i.scdn.co/image/ab67706f00000002b55b6074da1d43715fc16d6d" alt="">
+                        <h4 class="card-description">Happy Hits</h4>
+                        <p class="card-description">Hits to boost your mind and fill you with Happiness!</p>
+                    </div>
+                    <div data-folder="calm" class="card flex justify align">
+                        <!-- <button class="play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="black">
+                                <rect width="100" height="100" fill="green" />
+                                <path
+                                    d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+                            </svg>
+                        </button> -->
+                        <img src="https://i.scdn.co/image/ab67706f00000002d8fe1c03afc22a01d5109233" alt="">
+                        <h4 class="card-description">Calming acoustic</h4>
+                        <p class="card-description">Keep calm with instrumental acoustic tracks</p>
+                    </div>
+                    <div data-folder="pop" class="card flex justify align">
+                        <!-- <button class="play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="black">
+                                <rect width="100" height="100" fill="green" />
+                                <path
+                                    d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+                            </svg>
+                        </button> -->
+                        <img src="https://i.scdn.co/image/ab67706f00000002e820714b484a98f6e61416da" alt="">
+                        <h4 class="card-description">Pop Rising</h4>
+                        <p class="card-description">Who's now and next in pop. Cover: Ravyn Lenae</p>
+                    </div>
+                    <div data-folder="lofi" class="card flex justify align">
+                        <!-- <button class="play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="black">
+                                <rect width="100" height="100" fill="green" />
+                                <path
+                                    d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+                            </svg>
+                        </button> -->
+                        <img src="https://i.scdn.co/image/ab67706f00000002ce8e89604efb1f3122f31023" alt="">
+                        <h4 class="card-description">Lofi Chill</h4>
+                        <p class="card-description">Lazy slow lofi beats for laid-back moments.</p>
+                    </div>
+                    <div data-folder="rock" class="card flex justify align">
+                        <!-- <button class="play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="black">
+                                <rect width="100" height="100" fill="green" />
+                                <path
+                                    d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+                            </svg>
+                        </button> -->
+                        <img src="https://i.scdn.co/image/ab67706f000000028d2c0fbb4e007f6dac9db559" alt="">
+                        <h4 class="card-description">Indie Rock Hits</h4>
+                        <p class="card-description">True indie rock hits. Cover: Phoebe Bridgers</p>
+                    </div>
+                    <div data-folder="talwinder" class="card flex justify align">
+                        <!-- <button class="play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="black">
+                                <rect width="100" height="100" fill="green" />
+                                <path
+                                    d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+                            </svg>
+                        </button> -->
+                        <img aria-hidden="false" draggable="false" loading="lazy"
+                            src="https://dailymix-images.scdn.co/v2/img/ab6761610000e5eb73e7874ef75f3d17cd58bfb9/3/en/default"
+                            data-testid="card-image" alt=""
+                            class="mMx2LUixlnN_Fu45JpFB SKJSok3LfyedjZjujmFt Yn2Ei5QZn19gria6LjZj">
+                        <h4 class="card-description">Talwinder</h2>
+                            <p class="card-description">Songs that make you fall in love.</p>
+                    </div>
+                    <div data-folder="diljeet" class="card flex justify align">
+                        <!-- <button class="play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="black">
+                                <rect width="100" height="100" fill="green" />
+                                <path
+                                    d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+                            </svg>
+                        </button> -->
+                        <img aria-hidden="false" draggable="false" loading="lazy"
+                            src="https://dailymix-images.scdn.co/v2/img/ab6761610000e5ebcda5c51d32f64e382ba23881/4/en/default"
+                            data-testid="card-image" alt=""
+                            class="mMx2LUixlnN_Fu45JpFB SKJSok3LfyedjZjujmFt Yn2Ei5QZn19gria6LjZj">
+                        <h4 class="card-description">Diljeet</h2>
+                            <p class="card-description">Catch the hottest Punjabi tracks. Cover - Diljit Dosanjh</p>
+                    </div>
+                    <div data-folder="seedhemaut" class="card flex justify align">
+                        <!-- <button class="play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="black">
+                                <rect width="100" height="100" fill="green" />
+                                <path
+                                    d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+                            </svg>
+                        </button> -->
+                        <img aria-hidden="false" draggable="false" loading="lazy"
+                            src="https://dailymix-images.scdn.co/v2/img/ab6761610000e5eb2ff3b81c16a59f19b0f6e2d2/6/en/default"
+                            data-testid="card-image" alt=""
+                            class="mMx2LUixlnN_Fu45JpFB SKJSok3LfyedjZjujmFt Yn2Ei5QZn19gria6LjZj">
+                        <h4 class="card-description">Seedhe Maut</h2>
+                            <p class="card-description">This is Seedhe Maut. The essential tracks, all in one playlist.</p>
+                    </div>
+                    <div data-folder="bollywood" class="card flex justify align">
+                        <!-- <button class="play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="black">
+                                <rect width="100" height="100" fill="green" />
+                                <path
+                                    d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+                            </svg>
+                        </button> -->
+                        <img aria-hidden="false" draggable="false" loading="lazy"
+                            src="https://i.scdn.co/image/ab67706f0000000220bb5d69298314fa1d34d832"
+                            data-testid="card-image" alt=""
+                            class="mMx2LUixlnN_Fu45JpFB SKJSok3LfyedjZjujmFt Yn2Ei5QZn19gria6LjZj">
+                        <h4 class="card-description">Bollywood</h2>
+                            <p class="card-description">Let these songs be the background score to your love story.</p>
+                    </div>
+                    <div data-folder="anime" class="card flex justify align">
+                        <!-- <button class="play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="black">
+                                <rect width="100" height="100" fill="green" />
+                                <path
+                                    d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+                            </svg>
+                        </button> -->
+                        <img aria-hidden="false" draggable="false" loading="lazy"
+                            src="https://i.scdn.co/image/ab67656300005f1f515baa2407cbd0acbab8dc0d"
+                            data-testid="card-image" alt=""
+                            class="mMx2LUixlnN_Fu45JpFB SKJSok3LfyedjZjujmFt Yn2Ei5QZn19gria6LjZj">
+                        <h4 class="card-description">Anime</h2>
+                            <p class="card-description">WEEKLY UPDATES 🎧 Top Anime Song, OST, Opening, Ending, BGM</p>
+                    </div>
+                    <div data-folder="bella" class="card flex justify align">
+                        <!-- <button class="play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="black">
+                                <rect width="100" height="100" fill="green" />
+                                <path
+                                    d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+                            </svg>
+                        </button> -->
+                        <img aria-hidden="false" draggable="false" loading="lazy"
+                            src="https://i.scdn.co/image/ab676161000051741cca42a20f3aa647cfdf8939"
+                            data-testid="card-image" alt=""
+                            class="mMx2LUixlnN_Fu45JpFB SKJSok3LfyedjZjujmFt yYflTYbufy7rATGQiZfq Yn2Ei5QZn19gria6LjZj">
+                        <h4 class="card-description">BELLA</h2>
+                            <p class="card-description">With Byg Smyle, Fotty Seven, Nazz and more</p>
+                    </div>
+                    <div data-folder="rap" class="card flex justify align">
+                        <!-- <button class="play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="black">
+                                <rect width="100" height="100" fill="green" />
+                                <path
+                                    d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+                            </svg>
+                        </button> -->
+                        <img aria-hidden="false" draggable="false" loading="lazy"
+                            src="https://i.scdn.co/image/ab67706f0000000270cf84e24dec30a4728ce49b"
+                            data-testid="card-image" alt=""
+                            class="mMx2LUixlnN_Fu45JpFB SKJSok3LfyedjZjujmFt yOKoknIYYzAE90pe7_SE Yn2Ei5QZn19gria6LjZj">
+                        <h4 class="card-description">Bruh Rap</h2>
+                            <p class="card-description">New & Best of Marathi Rap. Cover - SAMBATA</p>
+                    </div>
+                    <div data-folder="dhillon" class="card flex justify align">
+                        <!-- <button class="play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="black">
+                                <rect width="100" height="100" fill="green" />
+                                <path
+                                    d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+                            </svg>
+                        </button> -->
+                        <img aria-hidden="false" draggable="false" loading="lazy"
+                            src="https://seed-mix-image.spotifycdn.com/v6/img/artist/6LEG9Ld1aLImEFEVHdWNSB/en/default"
+                            data-testid="card-image" alt=""
+                            class="mMx2LUixlnN_Fu45JpFB SKJSok3LfyedjZjujmFt yOKoknIYYzAE90pe7_SE Yn2Ei5QZn19gria6LjZj">
+                        <h4 class="card-description">Dhillon</h2>
+                            <p class="card-description">Get your dose of Punjabi pop nostalgia!</p>
+                    </div>
+                    <div data-folder="punjabi" class="card flex justify align">
+                        <!-- <button class="play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="black">
+                                <rect width="100" height="100" fill="green" />
+                                <path
+                                    d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+                            </svg>
+                        </button> -->
+                        <img aria-hidden="false" draggable="false" loading="lazy"
+                            src="https://i.scdn.co/image/ab67706f0000000256e1704d00d2dd227e896c61"
+                            data-testid="card-image" alt=""
+                            class="mMx2LUixlnN_Fu45JpFB SKJSok3LfyedjZjujmFt yOKoknIYYzAE90pe7_SE Yn2Ei5QZn19gria6LjZj">
+                        <h4 class="card-description">Punjabi</h2>
+                            <p class="card-description">Ultimate 101 Punjabi Hits with Karan Aujla</p>
+                    </div>
+                    <div data-folder="latest" class="card flex justify align">
+                        <!-- <button class="play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="black">
+                                <rect width="100" height="100" fill="green" />
+                                <path
+                                    d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+                            </svg>
+                        </button> -->
+                        <img aria-hidden="false" draggable="false" loading="lazy"
+                            src="https://i.scdn.co/image/ab67706f000000020e33ce53e2024e96556417d2"
+                            data-testid="card-image" alt=""
+                            class="mMx2LUixlnN_Fu45JpFB SKJSok3LfyedjZjujmFt yOKoknIYYzAE90pe7_SE Yn2Ei5QZn19gria6LjZj">
+                        <h4 class="card-description">Latest</h2>
+                            <p class="card-description">TOP TRENDING ENGLISH SONGS BANGERS, Instagram Trending Songs.</p>
+                    </div>
+
+
+
+
+                </div>
+
+                <div class="left-footer">
+                    <hr>
+                    <div>
+                        <div><a href="https://www.spotify.com/in-en/legal/"><span>Legal</span></a></div>
+                        <div><a href="https://www.spotify.com/in-en/safetyandprivacy/"><span>Safety & Privacy
+                                    Center</span></a></div>
+                        <div><a href="https://www.spotify.com/in-en/legal/privacy-policy/"><span>Privacy
+                                    Policy</span></a>
+                        </div>
+                        <div><a href="https://www.spotify.com/in-en/legal/cookies-policy/"><span>Cookies</span></a>
+                        </div>
+                        <div><a href="https://www.spotify.com/in-en/legal/privacy-policy/#s3"><span>About Ads</span></a>
+                        </div>
+                        <div><a href="https://www.spotify.com/in-en/accessibility/"><span>Accessibility</span></a></div>
+                    </div>
+
+                    <!-- <div><a href="https://www.spotify.com/legal/cookies-policy/" target="_blank" rel="noopener"><span>Cookies</span></a></div> -->
+                </div>
+
+            </section>
+
+        </div>
+    </div>
+    <div class="playbar flex justify align bg-black">
+        <!-- seekbar is used to show the running time of the song by using a lie and a moving circle on it -->
+        <div class="abovebar flex align">
+            <div class="songinfo flex align">
+
+            </div>
+            <div class="songbuttons">
+                <img width="35" id="previous" class="invert" src="previoussong.svg" alt="">
+                <img width="35" id="play" class="invert" src="play.svg" alt="">
+                <img width="35" id="next" class="invert" src="nextsong.svg" alt="">
+            </div>
+            <div class="timevol align justify">
+                <div class="songtime">
+
+                </div>
+                <div class="volume">
+                    <img class="volumeimg invert" src="volume.svg" alt="">
+                    <div class="range">
+                        <input type="range" name="volume">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="seekbar">
+            <div class="circle">
+
+            </div>
+        </div>
+    </div>
+
+    <script src="script1.js"></script>
+</body>
+
+</html>
