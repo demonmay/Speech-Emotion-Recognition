@@ -22,7 +22,7 @@ body {
 
 .left {
     width: 25%;
-    height: 60%;
+    height: 73vh;
     margin: 0px 0px 0px 0px;
     position:relative;
     
@@ -151,8 +151,106 @@ body {
     margin-bottom: 20px;
 }
 
-.audio{
-    
+.recording-panel {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 300px;
+    padding: 20px;
+    background-color: white;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.saved-playlists {
+    margin-top: 20px;
+}
+
+.saved-playlists button {
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.saved-playlists button:hover {
+    background-color: #0056b3;
+}
+
+.song-selection-panel {
+    position: fixed;
+    top: 10%;
+    left: 10%;
+    width: 80%;
+    height: 80%;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: auto;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.song-selection-panel .closebtn {
+    float: right;
+    font-size: 18px;
+    color: red;
+    cursor: pointer;
+}
+
+.song-selection-panel #songListContainer {
+    max-height: 60%;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+
+.recording-panel .closebtn {
+    float: right;
+    font-size: 18px;
+    color: red;
+    cursor: pointer;
+}
+
+.recording-panel button {
+    margin: 10px 0;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+.recording-panel button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+
+.playlist-songs {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.playlist-song {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #282828;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.playlist-song:hover {
+    background-color: #444;
 }
 
 .box1 {
@@ -273,6 +371,25 @@ hr{
 }
 
 
+.audio-content {
+    background: #282828;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.audio-content p {
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.audio-content audio {
+    width: 100%;
+    margin-top: 10px;
+}
+
 
 .right nav img {
     width: 35px;
@@ -316,6 +433,7 @@ hr{
     border-radius: 20px;
     padding-left: 10px;
     margin:3px;
+    cursor:text;
 }
 
 .rightnav ul button {
@@ -590,27 +708,42 @@ hr{
 }
 
 .playbar {
-    position: fixed;
+    /* position: fixed;
+    display:flex;
     flex-direction: column;
-    bottom: 0px;
+    bottom: 0;
     /* background-color: rgb(0, 0, 0); */
-    width: 100vw;
+    /* width: 100vw;
     height: 100px;
     justify-content: space-around;
     border-radius: 10px;
-    z-index: 11;
+    z-index: 11; */ 
+
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #000;
+    color: white;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    z-index: 1000;
+    
 }
 
 .playbar .seekbar {
     background-color: grey;
     height: 4px;
-    width: 100%;
+    width: 90%;
     position: absolute;
     bottom: 14px;
     border-radius: 20px;
     width: 80%;
     margin: auto;
     cursor: pointer;
+    overflow:hidden;
     /* this cursor:pointer is used so as to move the circle on the seekbar otherwise it will not move */
 }
 
@@ -635,8 +768,13 @@ hr{
 
 }
 .songinfo {
-    color: white;
+    /* color: white;
     width:200px;
+    font-size:14px; */
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 14px;
 }
 
 .abovebar {
@@ -945,5 +1083,36 @@ hr{
     .range{
         scale:0.6;
     }
+}
 
+.popup-message {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: red;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    font-size: 16px;
+    z-index: 1000;
+    animation: fade-in 0.3s ease-in-out;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.loading {
+    text-align: center;
+    font-size: 16px;
+    color: gray;
 }
