@@ -22,18 +22,30 @@
                 <!-- <img src="logo.svg" alt="Can't load image"> -->
                 <span class="closebtn" onclick="closeSlideInPage()">&times;</span>
                 <ul>
-                    
+
                     <li class="flex align"><img src="home.svg" alt="Home"><a href="">Home</a></li>
-                    <li class="searching flex align"><img src="search.svg" alt="Search"><a href="">Search</a></li>
+                    <!-- <li class="searching flex align"><img src="search.svg" alt="Search"><a href="">Search</a></li> -->
                     <!-- <img class="audio" src="https://cdn-icons-png.flaticon.com/512/8006/8006314.png"> -->
-                    <li class="searching flex align"><img src="search.svg" alt="Search"><a href="#">Audio</a></li>
+                    <li class="record flex align"><img src="search.svg" alt="Search"><a href="#">Audio</a></li>
                 </ul>
             </div>
+
+
+            <!-- <div id="audioPanel" class="recording-panel" style="display: none;">
+                <button class="closebtn" onclick="closeAudioPanel()">×</button>
+                <h2>Audio Recording</h2>
+                <button id="startRecording">Start Recording</button>
+                <button id="stopRecording" disabled>Stop Recording</button>
+                <audio id="recordedAudio" controls style="display: none;"></audio>
+                <button id="saveRecording" disabled>Save Recording</button>
+            </div> -->
+
+
             <div class="library rounded bg-black">
                 <div class="heading flex align m1 ">
                     <img src="liblogo.svg" alt="">
                     <h3>Library</h3>
-                    <img class="libplus flex align" src="pluslib.svg" alt="">
+                    <!-- <img class="libplus flex align" src="pluslib.svg" alt=""> -->
                 </div>
 
 
@@ -41,9 +53,21 @@
                     <h4>Create your first playlist</h4>
                     <div>It's easy we will help you</div>
                     <button onclick="createPlaylist()" class="create-playlist-btn">Create Playlist</button>
-
+                    <div id="playlistsContainer" class="playlists-container">
+                        <!-- Playlist buttons will be dynamically added here -->
+                    </div>
                 </div>
-                
+
+
+                <div id="audioListContainer">
+                    <!-- List of audio files will be displayed here -->
+                </div>                
+
+                <!-- Add the playback container here -->
+                <div id="audioPlaybackContainer">
+                    <!-- Retrieved audio will be displayed here -->
+                </div>
+
                 <div class="songlist">
                     <ul>
                         <!-- note that we will load the songs from script.js when they are loaded (event listner) then automatically they will be added here as -->
@@ -65,20 +89,29 @@
 
             </div>
         </div>
+
+        <div id="audioListContainer" class="audio-list">
+            <!-- Audio items will be dynamically added here -->
+        </div>
+        
         <div class="right">
             <header class="header flex align ">
                 <img src="hamburger.svg" class="hamburger invert " alt="">
                 <nav class="navbar flex align">
                     <div class="leftnav flex justify align">
-                        <input class="input bg-grey" id="inputfolder" type="text" placeholder="💭 What do you want to play?">
+                        <input class="input bg-grey" id="inputfolder" type="text"
+                            placeholder="💭 What do you want to play?">
                         <button onclick="searchfolder()" class="searchbutton">Search</button>
 
                     </div>
                     <div class="rightnav flex align">
                         <ul class="flex align">
-                            <a href="https://www.spotify.com/in-en/premium/?ref=spotifycom_header_premium_individual" class="buts" target="_blank">Premium</a>
-                            <a href="https://support.spotify.com/#_gl=1*ah1a*_gcl_au*MTI4MjMwMTU0Mi4xNzM2Njk4Njc3" class="buts" target="_blank">Support</a>
-                            <a href="https://www.spotify.com/us/download/windows/" class="buts" target="_blank">Download</a>
+                            <a href="https://www.spotify.com/in-en/premium/?ref=spotifycom_header_premium_individual"
+                                class="buts" target="_blank">Premium</a>
+                            <a href="https://support.spotify.com/#_gl=1*ah1a*_gcl_au*MTI4MjMwMTU0Mi4xNzM2Njk4Njc3"
+                                class="buts" target="_blank">Support</a>
+                            <a href="https://www.spotify.com/us/download/windows/" class="buts"
+                                target="_blank">Download</a>
                         </ul>
                         <div class="navbutton">
                             <span>|</span>
@@ -89,7 +122,7 @@
                             <span class="closepage" onclick="closeloginpage()">&times;</span>
                             <!-- <img class="spotifylogo" src="logo.svg" alt="Can't load image"> -->
                             <div class="logincard">
-                                
+
                                 <div class="sign1">
                                     <label for="username" id="usernamelabel">Username:</label>
                                     <input type="text" id="username" name="username" autocomplete="given-name">
@@ -98,7 +131,7 @@
                                     <label for="password" id="passwordlabel">Password:</label>
                                     <input type="password" id="password" name="password" autocomplete="given-password">
                                 </div>
-                                
+
                             </div>
                             <button class="logbutton" type="submit">Login</button>
                         </form>
@@ -106,14 +139,15 @@
                             <span class="closepage" onclick="closesignuppage()">&times;</span>
                             <!-- <img class="spotifylogo" src="logo.svg" alt="Can't load image"> -->
                             <div class="logincard">
-                                
+
                                 <div class="sign1">
                                     <label for="username" id="usernamesignup">Username :</label>
                                     <input type="text" id="usernameinput" name="username" autocomplete="given-name">
                                 </div>
                                 <div class="sign1">
                                     <label for="password" id="passwordsignup">Password :</label>
-                                    <input type="password" id="passwordinput" name="password" autocomplete="given-password">
+                                    <input type="password" id="passwordinput" name="password"
+                                        autocomplete="given-password">
                                 </div>
                             </div>
                             <button class="signbutton" type="submit">Sign Up</button>
@@ -123,14 +157,23 @@
                     </div>
                 </nav>
             </header>
+
+            <div class="recording-interface" style="display: none;">
+                <h2>Audio Recording</h2>
+                <button id="startRecording">Start Recording</button>
+                <button id="stopRecording" disabled>Stop Recording</button>
+                <button id="saveRecording" disabled>Save Recording</button>
+                <audio id="audioPreview" controls style="display: none;"></audio>
+            </div>
+
             <section class="spotify-playlist">
                 <h1>Playlists</h1>
                 <div class="container2 flex ">
                     <div data-folder="hits" class="card flex justify align">
                         <!-- "data-" is the attribute to target it with the name given after data- .Hence data- attributes are reserved for programmers use.They are available in a property named dataset in js  -->
                         <!-- eg. here an element can be used by using element.dataset.folder here -->
-                        
-                        
+
+
                         <img src="https://i.scdn.co/image/ab67706f00000002b55b6074da1d43715fc16d6d" alt="">
                         <h4 class="card-description">Happy Hits</h4>
                         <p class="card-description">Hits to boost your mind and fill you with Happiness!</p>
@@ -233,7 +276,8 @@
                             data-testid="card-image" alt=""
                             class="mMx2LUixlnN_Fu45JpFB SKJSok3LfyedjZjujmFt Yn2Ei5QZn19gria6LjZj">
                         <h4 class="card-description">Seedhe Maut</h2>
-                            <p class="card-description">This is Seedhe Maut. The essential tracks, all in one playlist.</p>
+                            <p class="card-description">This is Seedhe Maut. The essential tracks, all in one playlist.
+                            </p>
                     </div>
                     <div data-folder="bollywood" class="card flex justify align">
                         <!-- <button class="play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -345,7 +389,8 @@
                             data-testid="card-image" alt=""
                             class="mMx2LUixlnN_Fu45JpFB SKJSok3LfyedjZjujmFt yOKoknIYYzAE90pe7_SE Yn2Ei5QZn19gria6LjZj">
                         <h4 class="card-description">Latest</h2>
-                            <p class="card-description">TOP TRENDING ENGLISH SONGS BANGERS, Instagram Trending Songs.</p>
+                            <p class="card-description">TOP TRENDING ENGLISH SONGS BANGERS, Instagram Trending Songs.
+                            </p>
                     </div>
 
 
