@@ -29,6 +29,29 @@ function showPopupMessage(message, color) {
     }, 3000);
 }
 
+function clearPlaylists() {
+    const playlistsContainer = document.getElementById('playlistsContainer');
+    if (!playlistsContainer) {
+        console.error('Playlists container not found.');
+        return;
+    }
+
+    // Clear the playlist container and show a placeholder message
+    // playlistsContainer.innerHTML = '<p>No playlists available. Please log in to view your playlists.</p>';
+}
+
+function updatePlaylistContainer(message = '') {
+    const playlistsContainer = document.getElementById('playlistsContainer');
+    if (!playlistsContainer) {
+        console.error('Playlists container not found.');
+        return;
+    }
+
+    playlistsContainer.innerHTML = message ? `<p>${message}</p>` : ''; // Update the container with a message or clear it
+}
+
+
+
 // Update UI to show username and sign-out option
 function updateUserUI() {
     const navButtonContainer = document.querySelector('.navbutton');
@@ -52,10 +75,11 @@ function updateUserUI() {
         });
 
         document.querySelector('.signoutbutton').addEventListener('click', () => {
-            loggedInUser = null;
+            // loggedInUser = null;
             localStorage.removeItem('loggedInUser'); // Remove from localStorage
-            showPopupMessage('You have signed out successfully!', 'green');
-            updateUserUI();
+            showPopupMessage('You have logged out!', 'green');
+            updatePlaylistContainer('No playlists available. Please log in to view your playlists.');
+
         });
     } else {
         navButtonContainer.innerHTML = `
@@ -74,6 +98,36 @@ function updateUserUI() {
         });
     }
 }
+
+function fetchAndRenderPlaylists(username) {
+    const playlistsContainer = document.getElementById('playlistsContainer');
+    if (!playlistsContainer) {
+        console.error('Playlists container not found.');
+        return;
+    }
+
+    // Show loading state
+    updatePlaylistContainer('Loading playlists...');
+
+    // Simulate fetching playlists (you can replace this with an actual API call if needed)
+    setTimeout(() => {
+        const customPlaylists = JSON.parse(localStorage.getItem('customPlaylists')) || {};
+
+        // Filter playlists by username if needed (adjust logic as per your data structure)
+        const playlistsArray = Object.keys(customPlaylists).map((name) => ({
+            name,
+            songs: customPlaylists[name],
+        }));
+
+        if (playlistsArray.length === 0) {
+            updatePlaylistContainer('No playlists available. Create one to get started!');
+        } else {
+            renderPlaylists(playlistsArray);
+        }
+    }, 500); // Simulate a delay for fetching
+}
+
+
 
 async function signup(username, password) {
     try {
@@ -225,6 +279,413 @@ function createPlaylist() {
     }
 }
 
+// Save custom playlists in localStorage
+// function savePlaylist(playlistName, selectedSongs) {
+//     const customPlaylists = JSON.parse(localStorage.getItem("customPlaylists")) || {};
+//     customPlaylists[playlistName] = selectedSongs;
+//     localStorage.setItem("customPlaylists", JSON.stringify(customPlaylists));
+//     renderPlaylists();
+// }
+
+async function savePlaylist(name, songs = []) {
+    const username = localStorage.getItem('username'); // Retrieve the logged-in username
+
+    if (!username) {
+        alert('Please log in to save your playlist.');
+        return;
+    }
+
+    try {
+        const response = await fetch('http://localhost:3000/api/playlists', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, name, songs }),
+        });
+
+        if (response.ok) {
+            alert('Playlist saved successfully!');
+        } else {
+            const error = await response.json();
+            console.error('Failed to save playlist:', error.message);
+            alert('Failed to save playlist.');
+        }
+    } catch (error) {
+        console.error('Error saving playlist:', error);
+        alert('An error occurred while saving the playlist.');
+    }
+}
+
+
+
+
+// Render saved playlists as buttons
+// function renderPlaylists() {
+//     const container = document.getElementById('playlistsContainer');
+//     if (!container) {
+//         console.error("playlistsContainer not found in the DOM.");
+//         return;
+//     }
+//     container.innerHTML = ""; // Clear existing buttons
+
+//     const customPlaylists = JSON.parse(localStorage.getItem("customPlaylists")) || {};
+//     Object.keys(customPlaylists).forEach(playlistName => {
+//         const button = document.createElement('button');
+//         button.textContent = playlistName;
+//         button.classList.add('playlist-button');
+//         button.onclick = () => viewPlaylist(playlistName);
+//         container.appendChild(button);
+//     });
+// }
+
+
+
+
+
+
+
+function initializeSeekbarAndVolume() {
+    const playbar = document.querySelector(".playbar");
+    const seekbar = playbar.querySelector(".seekbar");
+    const circle = seekbar.querySelector(".circle");
+    const volumeInput = playbar.querySelector(".volume input[type='range']");
+    const songTime = playbar.querySelector(".songtime");
+
+    // Seekbar updates
+    currentsong.addEventListener("timeupdate", () => {
+        const currentTime = currentsong.currentTime || 0;
+        const duration = currentsong.duration || 0;
+
+        // Update seekbar position and time display
+        const progress = (currentTime / duration) * 100 || 0;
+        circle.style.left = `${progress}%`;
+
+        songTime.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+    });
+
+    // Handle seekbar click
+    seekbar.addEventListener("click", (e) => {
+        const seekbarWidth = seekbar.getBoundingClientRect().width;
+        const clickX = e.offsetX;
+
+        const newTime = (clickX / seekbarWidth) * currentsong.duration;
+        currentsong.currentTime = newTime;
+    });
+
+    // Volume control
+    volumeInput.addEventListener("input", (e) => {
+        const volume = parseInt(e.target.value, 10) / 100;
+        currentsong.volume = volume;
+    });
+
+    // Handle mute/unmute
+    const volumeImg = playbar.querySelector(".volumeimg");
+    volumeImg.onclick = () => {
+        currentsong.muted = !currentsong.muted;
+        volumeImg.src = currentsong.muted ? "mute.svg" : "volume.svg";
+    };
+}
+
+function formatTime(seconds) {
+    if (isNaN(seconds)) return "00:00";
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+}
+
+
+
+function playSongFromPlaylist(playlistName, songIndex) {
+    const customPlaylists = JSON.parse(localStorage.getItem("customPlaylists")) || {};
+    const songs = customPlaylists[playlistName];
+
+    if (!songs || songIndex < 0 || songIndex >= songs.length) {
+        showPopupMessage("Invalid song selection!", "red");
+        return;
+    }
+
+    const selectedSong = songs[songIndex];
+    currentsong.src = `/songs/${selectedSong}`;
+    currentsong.play();
+
+    // Update playbar
+    const playbar = document.querySelector(".playbar");
+    if (playbar) {
+        // Update song info
+        const songInfo = playbar.querySelector(".songinfo");
+        const songName = selectedSong.split("/").pop().replace(/\.mp3|\.wav|\.ogg|\.flac/i, "").replaceAll("%20", " ");
+        songInfo.innerHTML = `<div>${songName}</div>`;
+
+        // Play/Pause button logic
+        const playButton = playbar.querySelector("#play");
+        playButton.src = "pause.svg"; // Start with "Pause" icon
+        // playButton.onclick = null; // Clear existing listener
+        playButton.onclick = () => {
+            // console.log("Play/Pause button clicked:", currentsong.paused ? "Paused" : "Playing");
+            if (currentsong.paused) {
+                currentsong.pause();
+                playButton.src = "play.svg";
+            } else {
+                currentsong.play();
+                playButton.src = "pause.svg";
+
+            }
+        };
+
+        // Previous and Next buttons
+        const prevButton = playbar.querySelector("#previous");
+        const nextButton = playbar.querySelector("#next");
+
+        prevButton.onclick = () => previousSong(playlistName, songIndex);
+        nextButton.onclick = () => nextSong(playlistName, songIndex);
+
+        // Reset and attach seekbar and volume controls
+        initializeSeekbarAndVolume();
+    }
+
+    showPopupMessage(`Now playing: ${selectedSong.replaceAll("%20", " ")}`, "blue");
+}
+
+function displayAudioContent(audioFileName, audioPath) {
+    const rightContainer = document.querySelector(".right .spotify-playlist");
+
+    if (!rightContainer) {
+        console.error("Right container not found in the DOM.");
+        return;
+    }
+
+    // Replace the content
+    rightContainer.innerHTML = `
+        <h1>Audio Recording</h1>
+        <div class="audio-content">
+            <p><strong>File Name:</strong> ${audioFileName}</p>
+            <audio controls>
+                <source src="${audioPath}" type="audio/wav">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
+    `;
+}
+
+
+
+function renderAudioList(recordings) {
+    const audioListContainer = document.getElementById("audioListContainer");
+    if (!audioListContainer) {
+        console.error("Audio list container not found in the DOM.");
+        return;
+    }
+
+    // Clear existing content
+    audioListContainer.innerHTML = "";
+
+    if (recordings.length === 0) {
+        audioListContainer.innerHTML = `
+            <div class="empty-message">No recordings available.</div>
+        `;
+        return;
+    }
+
+    // Populate recordings
+    recordings.forEach((recording) => {
+        const audioItem = document.createElement("div");
+        audioItem.classList.add("audio-item");
+        audioItem.textContent = recording;
+        audioItem.dataset.audioPath = `/recordings/${recording}`;
+        audioItem.addEventListener("click", () => {
+            displayAudioContent(recording, audioItem.dataset.audioPath);
+        });
+        audioListContainer.appendChild(audioItem);
+    });
+}
+
+
+
+
+async function fetchAudioRecordings() {
+    try {
+        const response = await fetch("/recordings");
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const recordings = await response.json();
+
+        if (recordings.length === 0) {
+            console.warn("No recordings found.");
+            showPopupMessage("No recordings available.", "yellow");
+            return;
+        }
+
+        renderAudioList(recordings);
+    } catch (error) {
+        console.error("Error fetching recordings:", error);
+        showPopupMessage("Failed to load audio recordings. Check your server setup.", "red");
+    }
+}
+
+
+// Call the function when the page loads
+// document.addEventListener("DOMContentLoaded", fetchAudioRecordings);
+
+
+function viewPlaylist(playlistName) {
+    const customPlaylists = JSON.parse(localStorage.getItem("customPlaylists")) || {};
+    const songs = customPlaylists[playlistName];
+
+    if (!songs) {
+        showPopupMessage("Playlist not found!", "red");
+        return;
+    }
+
+    const rightContainer = document.querySelector(".right .spotify-playlist");
+    if (!rightContainer) {
+        console.error("Right container not found in the DOM.");
+        return;
+    }
+
+    // Clear the existing content and display the playlist songs with buttons
+    rightContainer.innerHTML = `
+        <h1>${playlistName}</h1>
+        <ul class="playlist-songs">
+            ${songs
+                .map(
+                    (song) => `
+                    <li class="playlist-song">
+                        ${song}
+                    </li>`
+                )
+                .join("")}
+        </ul>
+        <div class="playlist-actions">
+            <button class="delete-playlist" onclick="deletePlaylist('${playlistName}')">Delete Playlist</button>
+            <button class="rename-playlist" onclick="renamePlaylist('${playlistName}')">Rename Playlist</button>
+        </div>
+    `;
+}
+
+
+function deletePlaylist(playlistName) {
+    if (confirm(`Are you sure you want to delete the playlist: ${playlistName}?`)) {
+        const customPlaylists = JSON.parse(localStorage.getItem("customPlaylists")) || {};
+        delete customPlaylists[playlistName]; // Remove playlist
+        localStorage.setItem("customPlaylists", JSON.stringify(customPlaylists)); // Save changes
+        showPopupMessage("Playlist deleted successfully!", "green");
+        document.querySelector('.modal').remove(); // Close modal
+        renderPlaylists(); // Refresh playlist buttons
+    }
+}
+
+function renamePlaylist(oldName) {
+    const newName = prompt("Enter the new name for your playlist:", oldName);
+    if (newName && newName.trim() !== "") {
+        const customPlaylists = JSON.parse(localStorage.getItem("customPlaylists")) || {};
+
+        // Check if the new name already exists
+        if (customPlaylists[newName]) {
+            showPopupMessage("A playlist with this name already exists. Please choose another name.", "red");
+            return;
+        }
+
+        // Rename the playlist
+        customPlaylists[newName] = customPlaylists[oldName];
+        delete customPlaylists[oldName]; // Remove the old entry
+        localStorage.setItem("customPlaylists", JSON.stringify(customPlaylists)); // Save changes
+        showPopupMessage("Playlist renamed successfully!", "green");
+        document.querySelector('.modal').remove(); // Close modal
+        renderPlaylists(); // Refresh playlist buttons
+    } else {
+        showPopupMessage("Invalid playlist name. Rename canceled.", "red");
+    }
+}
+
+
+
+
+
+
+// Save Playlist and Close Modal
+function saveCustomPlaylist(songList, modala) {
+    const loggedInUser = localStorage.getItem("loggedInUser");
+
+    // Check if user is logged in
+    if (!loggedInUser) {
+        // showPopupMessage("No playlists available. Please log in to view your playlists.", "red");
+        return; // Exit the function if not logged in
+    }
+
+    const selectedSongs = Array.from(songList.querySelectorAll("input[type='checkbox']:checked"))
+        .map(checkbox => checkbox.value);
+
+    if (selectedSongs.length === 0) {
+        showPopupMessage("No songs selected. Please select songs to create a playlist.", "yellow");
+        return;
+    }
+
+    const playlistName = prompt("Enter a name for your playlist:");
+    if (playlistName) {
+        const customPlaylists = JSON.parse(localStorage.getItem("customPlaylists")) || {};
+
+        // Check if the playlist name already exists
+        if (customPlaylists[playlistName]) {
+            showPopupMessage("Playlist name already exists. Please choose a different name.", "red");
+            return;
+        }
+
+        // Save the new playlist
+        customPlaylists[playlistName] = selectedSongs;
+        localStorage.setItem("customPlaylists", JSON.stringify(customPlaylists));
+        console.log("Saved Playlists:", customPlaylists);
+
+        const playlistsArray = Object.keys(customPlaylists).map((name) => ({
+            name,
+            songs: customPlaylists[name],
+        }));
+
+        renderPlaylists(playlistsArray);
+        showPopupMessage("Playlist created successfully!", "green");
+        modala.remove();
+    }
+}
+
+
+
+function playPlaylist(playlistName) {
+    const customPlaylists = JSON.parse(localStorage.getItem("customPlaylists")) || {};
+    const songs = customPlaylists[playlistName];
+
+    if (!songs || songs.length === 0) {
+        showPopupMessage("This playlist is empty!", "yellow");
+        return;
+    }
+
+    let currentIndex = 0;
+
+    const playNextSong = () => {
+        if (currentIndex >= songs.length) {
+            showPopupMessage("Playlist finished playing!", "green");
+            return;
+        }
+
+        const currentSong = songs[currentIndex];
+        currentsong.src = `/songs/${currentSong}`;
+        currentsong.play();
+        showPopupMessage(`Now playing: ${currentSong}`, "blue");
+
+        currentsong.onended = () => {
+            currentIndex++;
+            playNextSong();
+        };
+    };
+
+    playNextSong();
+}
+
+
+
+
+
 
 // Function to gather all songs dynamically from the songs folder
 async function gatherAllSongs() {
@@ -318,29 +779,7 @@ async function displayAllSongsForSelection() {
 }
 
 
-// Save the custom playlist
-function saveCustomPlaylist(songList, modal) {
-    const selectedSongs = [];
-    const checkboxes = songList.querySelectorAll("input[type='checkbox']");
-    checkboxes.forEach(checkbox => {
-        if (checkbox.checked) {
-            selectedSongs.push(checkbox.value);
-        }
-    });
 
-    if (selectedSongs.length === 0) {
-        showPopupMessage("No songs selected. Please select songs to create a playlist.", "yellow");
-    } else {
-        const playlistName = prompt("Enter a name for your playlist:");
-        if (playlistName) {
-            const customPlaylists = JSON.parse(localStorage.getItem("customPlaylists")) || {};
-            customPlaylists[playlistName] = selectedSongs;
-            localStorage.setItem("customPlaylists", JSON.stringify(customPlaylists));
-            showPopupMessage("Playlist created successfully!", "green");
-            // modal.remove();
-        }
-    }
-}
 
 
 
@@ -461,10 +900,33 @@ const playmusic = (track, pause = false) => {
     // audio.play();
 
     currentsong.src = `/songs/${currfolder}/` + track;
+    console.log("Playing track from path:", currentsong.src); // Debug path
+
+
+    // if (!pause) {
+    //     currentsong.play();
+    //     play.src = "pause.svg"
+    // }
+
     if (!pause) {
-        currentsong.play();
-        play.src = "pause.svg"
+        currentsong.play()
+            .then(() => {
+                play.src = "pause.svg";
+                // console.log("Audio is playing successfully.");
+            })
+        // .catch(error => {
+        //     console.warn("Audio play error:", error);
+
+        //     // Suppress popup for non-critical autoplay issues
+        //     if (error.name === "NotAllowedError" || error.name === "NotSupportedError") {
+        //         console.warn("Autoplay restriction or minor issue: ", error.message);
+        //     } else {
+        //         showPopupMessage("Error playing audio. Please try again", "red");
+        //     }
+        // });
     }
+
+
     // currentsong.play();
     // play.src = "pause.svg"
     // sometimes it may happen that on showing the song name on the playbar %20 will come at the place of spaces so to remove that %20 we need to decode the URI and for that we do decodeURI(track) below.This happend when we use the if condition above to make the first song to play as the default song on refreshing
@@ -518,17 +980,205 @@ document.getElementById('inputfolder').addEventListener('keydown', function (eve
         searchfolder();  // Call the search function
     }
 });
-
-
-document.querySelector('.left ul .searching').addEventListener('click', async function (event) {
-    event.preventDefault(); // Prevent default behavior
-    const initialized = await initializeAudioRecording();
-    if (initialized) {
-        toggleRecording(); // Toggle the recording state (start/stop)
-    } else {
-        console.error("Audio recording could not be initialized.");
-    }
+document.getElementById('inputfolder').addEventListener('click', function () {
+    this.focus();
 });
+
+
+function renderPlaylists(playlists) {
+    const playlistsContainer = document.getElementById('playlistsContainer');
+
+    if (!playlistsContainer) {
+        console.error('Playlists container not found.');
+        return;
+    }
+
+    playlistsContainer.innerHTML = ''; // Clear existing playlists
+
+    playlists.forEach((playlist) => {
+        const button = document.createElement('button');
+        button.classList.add('playlist-button');
+        button.textContent = playlist.name;
+        button.onclick = () => viewPlaylist(playlist.name); // Call viewPlaylist on click
+        playlistsContainer.appendChild(button);
+    });
+}
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Selectors
+    const audioListButton = document.querySelector('.record a');
+    const recordingInterface = document.querySelector('.recording-interface');
+    const playlistInterface = document.querySelector('.spotify-playlist');
+    const startRecordingButton = document.getElementById('startRecording');
+    const stopRecordingButton = document.getElementById('stopRecording');
+    const saveRecordingButton = document.getElementById('saveRecording');
+    const audioPreview = document.getElementById('audioPreview');
+    const username = localStorage.getItem('username'); // Retrieve logged-in username
+    const loggedInUser = localStorage.getItem('loggedInUser');
+
+
+
+
+    if (!loggedInUser) {
+        updatePlaylistContainer('No playlists available. Please log in to view your playlists.');
+        return;
+    } else {
+        fetchAndRenderPlaylists(loggedInUser); // Render playlists if a user is logged in
+    }
+
+    const customPlaylists = JSON.parse(localStorage.getItem("customPlaylists")) || {};
+    const playlistsArray = Object.keys(customPlaylists).map((name) => ({
+        name,
+        songs: customPlaylists[name],
+    }));
+
+    renderPlaylists(playlistsArray);
+
+
+    // Initialize Login Button
+    const loginButton = document.querySelector('.login');
+    if (loginButton) {
+        loginButton.addEventListener('click', function () {
+            const loginPage = document.querySelector('.loginpage');
+            if (loginPage) {
+                const usernameInput = document.getElementById('username'); // Replace with actual input field ID
+                const username = usernameInput ? usernameInput.value.trim() : null;
+
+                if (username) {
+                    localStorage.setItem('loggedInUser', username); // Store the username
+                    alert(`You are now logged in as ${username}!`);
+
+                    // Dynamically fetch and render playlists after login
+                    fetchAndRenderPlaylists(username);
+                } else {
+                    alert('Please enter a valid username.');
+                }
+
+                loginPage.style.zIndex = "1000";
+            } else {
+                console.warn("Login page not found.");
+            }
+        });
+    }
+
+
+
+
+    // Initialize Signup Button
+    const signupButton = document.querySelector('.signup');
+    if (signupButton) {
+        signupButton.addEventListener('click', function () {
+            const signupPage = document.querySelector('.signuppage');
+            if (signupPage) {
+                signupPage.style.zIndex = "1000";
+                togglesignup(); // Assuming this function handles signup modal behavior
+            } else {
+                console.warn("Signup page not found.");
+            }
+        });
+    }
+
+    // Fetch and Render Playlists
+    if (username) {
+        try {
+            const response = await fetch(`http://localhost:3000/api/playlists/${username}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                renderPlaylists(data.playlists);
+            } else {
+                console.error('Failed to fetch playlists:', data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching playlists:', error);
+        }
+    }
+
+    // Toggle visibility of the recording interface
+    if (audioListButton) {
+        audioListButton.addEventListener('click', () => {
+            const isHidden = recordingInterface.style.display === 'none';
+            recordingInterface.style.display = isHidden ? 'block' : 'none';
+            playlistInterface.style.display = isHidden ? 'none' : 'block';
+        });
+    }
+
+    // Media Recording Logic
+    let mediaRecorder;
+    let audioChunks = [];
+
+    if (startRecordingButton) {
+        startRecordingButton.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+
+                    audioPreview.src = audioUrl;
+                    audioPreview.style.display = 'block';
+                    saveRecordingButton.disabled = false;
+
+                    saveRecordingButton.onclick = () => saveRecording(audioBlob);
+                };
+
+                mediaRecorder.start();
+                startRecordingButton.disabled = true;
+                stopRecordingButton.disabled = false;
+            } catch (error) {
+                console.error('Error starting recording:', error);
+            }
+        });
+    }
+
+    if (stopRecordingButton) {
+        stopRecordingButton.addEventListener('click', () => {
+            if (mediaRecorder) {
+                mediaRecorder.stop();
+            }
+            startRecordingButton.disabled = false;
+            stopRecordingButton.disabled = true;
+        });
+    }
+
+    // Save Recording Function
+    async function saveRecording(audioBlob) {
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'recording.wav');
+
+        try {
+            const response = await fetch('http://localhost:3000/save-audio', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                alert('Recording saved successfully!');
+            } else {
+                alert('Failed to save recording.');
+                console.error(await response.text());
+            }
+        } catch (error) {
+            console.error('Error saving recording:', error);
+        }
+    }
+
+
+});
+
+
+
 
 
 
@@ -605,7 +1255,7 @@ async function toggleRecording() {
         if (!initialized) return;
     }
 
-    const audioButton = document.querySelector('.left ul .searching a');
+    const audioButton = document.querySelector('.left ul .record a');
 
     if (!isRecording) {
         // Start recording
@@ -622,9 +1272,85 @@ async function toggleRecording() {
         mediaRecorder.stop();
         isRecording = false;
         showPopupMessage('Recording stopped', 'yellow');
-        document.querySelector('.record-button').classList.remove('recording');
+        // document.querySelector('.record-button').classList.remove('recording');
+        audioButton.classList.remove('recording');
     }
 }
+
+function togglePlayPause(playButton) {
+    if (currentsong.paused) {
+        currentsong.play();
+        playButton.src = "pause.svg";
+    } else {
+        currentsong.pause();
+        playButton.src = "play.svg";
+    }
+}
+
+function previousSong(playlistName, currentIndex) {
+    const customPlaylists = JSON.parse(localStorage.getItem("customPlaylists")) || {};
+    const songs = customPlaylists[playlistName];
+
+    if (currentIndex > 0) {
+        playSongFromPlaylist(playlistName, currentIndex - 1);
+    } else {
+        playSongFromPlaylist(playlistName, songs.length - 1); // Loop to the last song
+    }
+}
+
+function nextSong(playlistName, currentIndex) {
+    const customPlaylists = JSON.parse(localStorage.getItem("customPlaylists")) || {};
+    const songs = customPlaylists[playlistName];
+
+    if (currentIndex < songs.length - 1) {
+        playSongFromPlaylist(playlistName, currentIndex + 1);
+    } else {
+        playSongFromPlaylist(playlistName, 0); // Loop to the first song
+    }
+}
+
+function toggleMute() {
+    const muteUnmuteIcon = document.getElementById("muteUnmuteIcon");
+
+    if (currentsong.muted) {
+        currentsong.muted = false;
+        muteUnmuteIcon.src = "volume.svg";
+    } else {
+        currentsong.muted = true;
+        muteUnmuteIcon.src = "mute.svg";
+    }
+}
+
+function attachPlaybarEventListeners() {
+    const seekbar = document.getElementById("seekbar");
+    const volumeControl = document.getElementById("volumeControl");
+    const currentTimeSpan = document.getElementById("currentTime");
+    const totalTimeSpan = document.getElementById("totalTime");
+
+    // Seekbar control
+    seekbar.addEventListener("input", () => {
+        const seekTime = (seekbar.value / 100) * currentsong.duration;
+        currentsong.currentTime = seekTime;
+    });
+
+    // Volume control
+    volumeControl.addEventListener("input", () => {
+        currentsong.volume = volumeControl.value / 100;
+    });
+
+    // Update current time and seekbar
+    currentsong.addEventListener("timeupdate", () => {
+        const currentTime = formatTime(currentsong.currentTime);
+        const totalTime = formatTime(currentsong.duration || 0);
+        currentTimeSpan.textContent = currentTime;
+        totalTimeSpan.textContent = totalTime;
+
+        const progress = (currentsong.currentTime / currentsong.duration) * 100;
+        seekbar.value = progress || 0;
+    });
+}
+
+
 
 async function main() {
 
@@ -682,40 +1408,40 @@ async function main() {
     //     togglelogin();
     // });
 
-    document.addEventListener('DOMContentLoaded', () => {
-        // Initialize Login Button
-        const loginButton = document.querySelector('.login');
-        if (loginButton) {
-            loginButton.addEventListener('click', function () {
-                const loginPage = document.querySelector('.loginpage');
-                if (loginPage) {
-                    loginPage.style.zIndex = "1000";
-                    localStorage.setItem('userLoggedIn', "true");
-                    alert("You are now logged in!");
-                } else {
-                    console.error("Login page not found.");
-                }
-            });
-        } else {
-            console.error("Login button not found in the DOM.");
-        }
+    // document.addEventListener('DOMContentLoaded', () => {
+    //     // Initialize Login Button
+    //     const loginButton = document.querySelector('.login');
+    //     if (loginButton) {
+    //         loginButton.addEventListener('click', function () {
+    //             const loginPage = document.querySelector('.loginpage');
+    //             if (loginPage) {
+    //                 loginPage.style.zIndex = "1000";
+    //                 localStorage.setItem('userLoggedIn', "true");
+    //                 alert("You are now logged in!");
+    //             } else {
+    //                 console.error("Login page not found.");
+    //             }
+    //         });
+    //     } else {
+    //         console.error("Login button not found in the DOM.");
+    //     }
 
-        // Initialize Signup Button
-        const signupButton = document.querySelector('.signup');
-        if (signupButton) {
-            signupButton.addEventListener('click', function () {
-                const signupPage = document.querySelector('.signuppage');
-                if (signupPage) {
-                    signupPage.style.zIndex = "1000";
-                    togglesignup(); // Assuming this function handles signup modal behavior
-                } else {
-                    console.error("Signup page not found.");
-                }
-            });
-        } else {
-            console.error("Signup button not found in the DOM.");
-        }
-    });
+    //     // Initialize Signup Button
+    //     const signupButton = document.querySelector('.signup');
+    //     if (signupButton) {
+    //         signupButton.addEventListener('click', function () {
+    //             const signupPage = document.querySelector('.signuppage');
+    //             if (signupPage) {
+    //                 signupPage.style.zIndex = "1000";
+    //                 togglesignup(); // Assuming this function handles signup modal behavior
+    //             } else {
+    //                 console.error("Signup page not found.");
+    //             }
+    //         });
+    //     } else {
+    //         console.error("Signup button not found in the DOM.");
+    //     }
+    // });
 
     // document.querySelector('.signup').addEventListener('click', function () {
     //     document.querySelector('.signuppage').style.zIndex = "1000";
@@ -820,12 +1546,12 @@ async function main() {
 
     })
     // Update error handling for audio playback
-    currentsong.addEventListener("error", (e) => {
-        console.error("Audio error:", e);
-        showPopupMessage('Error playing audio. Please try again.', 'red');
-    });
+    // currentsong.addEventListener("error", (e) => {
+    //     console.error("Audio error:", e);
+    //     showPopupMessage('Error playing audio. Please try again.', 'red');
+    // });
 
-    initializeAudioControls();
+    // initializeAudioControls();
 
 }
 
@@ -845,6 +1571,6 @@ function initializeAudioControls() {
     recordButton.classList.add('record-button');
     recordButton.addEventListener('click', initializeAudioRecording);
 
-    controlsContainer.appendChild(recordButton);
+    document.querySelector('.recording-panel').appendChild(recordButton);
 }
 main();
