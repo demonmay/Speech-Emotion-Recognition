@@ -26,7 +26,7 @@ function showPopupMessage(message, color) {
 
     setTimeout(() => {
         popup.remove();
-    }, 3000);
+    }, 5000);
 }
 
 function clearPlaylists() {
@@ -131,7 +131,7 @@ function fetchAndRenderPlaylists(username) {
 
 async function signup(username, password) {
     try {
-        const response = await fetch('http://localhost:3000/signup', {
+        const response = await fetch('http://localhost:5000/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
@@ -153,7 +153,7 @@ async function signup(username, password) {
 async function login(username, password) {
     try {
         console.log('Login payload:', { username, password }); // Debug payload
-        const response = await fetch('http://localhost:3000/login', {
+        const response = await fetch('http://localhost:5000/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
@@ -296,7 +296,7 @@ async function savePlaylist(name, songs = []) {
     }
 
     try {
-        const response = await fetch('http://localhost:3000/api/playlists', {
+        const response = await fetch('http://localhost:5000/api/playlists', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -806,7 +806,7 @@ function showLoginPopup(message) {
     // Remove the popup after 3 seconds
     setTimeout(() => {
         popup.remove();
-    }, 3000);
+    }, 5000);
 }
 
 // // Simulate login (for testing)
@@ -1085,7 +1085,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Fetch and Render Playlists
     if (username) {
         try {
-            const response = await fetch(`http://localhost:3000/api/playlists/${username}`);
+            const response = await fetch(`http://localhost:5000/api/playlists/${username}`);
             const data = await response.json();
 
             if (response.ok) {
@@ -1158,7 +1158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         formData.append('audio', audioBlob, 'recording.wav');
 
         try {
-            const response = await fetch('http://localhost:3000/save-audio', {
+            const response = await fetch('http://localhost:5000/save-audio', {
                 method: 'POST',
                 body: formData,
             });
